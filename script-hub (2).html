@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📞 Script Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #e8c97d;
+    --text: #f0ede8;
+    --muted: #6b6b7b;
+    --tag-cold: #1a2a3a; --tag-cold-text: #7ab3d4;
+    --tag-relance: #1a2a1a; --tag-relance-text: #7ac47a;
+    --tag-obj: #2a1a1a; --tag-obj-text: #d47a7a;
+    --tag-closing: #2a2a1a; --tag-closing-text: #c4b47a;
+    --tag-officiel: #1e1a0e; --tag-officiel-text: #e8c97d;
+    --tag-test: #1a1a2a; --tag-test-text: #9a9ad4;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; overflow-x: hidden; }
+
+  /* COVER */
+  .cover { position: relative; height: 220px; background: linear-gradient(160deg, #08080a 0%, #11111a 35%, #16140e 65%, #0a0a0c 100%); overflow: hidden; }
+  .cover::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 90% at 15% 60%, rgba(232,201,125,0.08) 0%, transparent 55%), radial-gradient(ellipse 50% 70% at 85% 20%, rgba(80,100,200,0.04) 0%, transparent 50%); }
+  .cover-dots { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(232,201,125,0.06) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(ellipse 80% 100% at 50% 100%, black 0%, transparent 70%); }
+  .cover-line { position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent); }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 0 48px 80px; }
+
+  /* LANG SWITCHER */
+  .lang-bar { display: flex; justify-content: flex-end; padding: 18px 0 0; animation: fadeUp 0.4s ease both; }
+  .lang-switcher { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lang-btn { padding: 8px 18px; font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 500; letter-spacing: 0.08em; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.2s ease; }
+  .lang-btn.active { background: var(--surface); color: var(--accent); }
+  .lang-btn:hover:not(.active) { color: var(--text); }
+  .lang-divider { width: 1px; background: var(--border); align-self: stretch; }
+
+  /* HEADER */
+  .header { padding: 28px 0 44px; margin-bottom: 40px; border-bottom: 1px solid var(--border); animation: fadeUp 0.5s 0.05s ease both; }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .header-icon { font-size: 52px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 24px rgba(232,201,125,0.25)); }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; letter-spacing: -1.5px; line-height: 1.05; background: linear-gradient(140deg, #f0ede8 20%, #e8c97d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header-sub { color: var(--muted); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+  .header-stats { display: flex; gap: 24px; align-items: flex-end; padding-bottom: 4px; }
+  .stat { text-align: right; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+  /* BANNER */
+  .active-banner { background: linear-gradient(135deg, #1a180c 0%, #1e1c10 50%, #1a1810 100%); border: 1px solid rgba(232,201,125,0.18); border-radius: 14px; padding: 22px 28px; margin-bottom: 48px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: all 0.3s ease; animation: fadeUp 0.5s 0.1s ease both; position: relative; overflow: hidden; }
+  .active-banner::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), rgba(232,201,125,0.3)); border-radius: 0 2px 2px 0; }
+  .active-banner:hover { border-color: rgba(232,201,125,0.35); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  .banner-pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(232,201,125,0.4); } 50% { box-shadow: 0 0 0 8px rgba(232,201,125,0); } }
+  .banner-label { color: var(--accent); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+  .banner-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 600; color: var(--text); }
+  .banner-meta { font-size: 12px; color: var(--muted); margin-top: 3px; font-family: 'DM Mono', monospace; }
+  .banner-arrow { margin-left: auto; color: var(--accent); font-size: 20px; transition: transform 0.2s ease; flex-shrink: 0; }
+  .active-banner:hover .banner-arrow { transform: translateX(5px); }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; animation: fadeUp 0.5s 0.15s ease both; }
+  .section-title { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+  .count-badge { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 10px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 28px; animation: fadeUp 0.5s 0.18s ease both; }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-family: 'DM Sans', sans-serif; padding: 7px 18px; border-radius: 20px; cursor: pointer; transition: all 0.2s ease; font-weight: 400; }
+  .filter-btn:hover { color: var(--text); border-color: #3a3a45; }
+  .filter-btn.active { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+
+  /* GALLERY */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; animation: fadeUp 0.5s 0.22s ease both; }
+
+  /* CARD */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); position: relative; }
+  .card::after { content: ''; position: absolute; inset: 0; border-radius: 14px; opacity: 0; transition: opacity 0.3s ease; box-shadow: inset 0 0 0 1px rgba(232,201,125,0.25); pointer-events: none; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.55); border-color: rgba(232,201,125,0.15); }
+  .card:hover::after { opacity: 1; }
+  .card-preview { height: 110px; padding: 18px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); overflow: hidden; position: relative; }
+  .card-preview-text { font-size: 11.5px; line-height: 1.75; color: #4a4a5a; font-family: 'DM Mono', monospace; }
+  .card-preview::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 55px; background: linear-gradient(transparent, var(--surface2)); }
+  .card-body { padding: 18px 20px 20px; }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; font-weight: 500; letter-spacing: 0.03em; }
+  .tag-cold { background: var(--tag-cold); color: var(--tag-cold-text); }
+  .tag-relance { background: var(--tag-relance); color: var(--tag-relance-text); }
+  .tag-closing { background: var(--tag-closing); color: var(--tag-closing-text); }
+  .tag-officiel { background: var(--tag-officiel); color: var(--tag-officiel-text); }
+  .tag-test { background: var(--tag-test); color: var(--tag-test-text); }
+  .card-name { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 7px; line-height: 1.3; }
+  .card-objective { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .card-objective span { color: var(--accent); font-family: 'DM Mono', monospace; font-size: 11px; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(10px); z-index: 100; padding: 32px 20px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; justify-content: center; align-items: flex-start; animation: fadeIn 0.2s ease; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 740px; overflow: hidden; animation: scaleIn 0.3s cubic-bezier(0.16,1,0.3,1); }
+  .modal-cover { height: 90px; position: relative; overflow: hidden; }
+  .modal-cover-bg { position: absolute; inset: 0; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; z-index: 2; }
+  .modal-close:hover { color: var(--text); background: var(--surface2); }
+  .modal-content { padding: 30px 36px 36px; }
+  .modal-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(140deg, #f0ede8 20%, #e8c97d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .modal-objective { font-size: 13px; color: var(--muted); margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); line-height: 1.6; }
+  .modal-objective strong { color: var(--accent); font-weight: 400; }
+
+  .script-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .script-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .script-section { margin-bottom: 24px; }
+  .script-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 10px; }
+  .script-step { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+  .script-text { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+  .script-text em { color: var(--muted); font-style: italic; font-size: 12px; }
+
+  .toggle { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+  .toggle-header { padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); transition: color 0.2s ease; user-select: none; }
+  .toggle-header:hover { color: var(--text); }
+  .toggle-arrow { font-size: 9px; transition: transform 0.25s ease; }
+  .toggle.open .toggle-arrow { transform: rotate(90deg); }
+  .toggle-body { display: none; padding: 0 18px 16px; border-top: 1px solid var(--border); }
+  .toggle.open .toggle-body { display: block; padding-top: 14px; }
+  .objection-item { margin-bottom: 16px; padding-left: 14px; border-left: 2px solid var(--border); }
+  .objection-item:last-child { margin-bottom: 0; }
+  .objection-q { font-size: 12px; color: var(--tag-obj-text); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .objection-a { font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+  .rules-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .rules-list li { font-size: 13px; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
+  .rules-list li::before { content: '—'; color: var(--accent); flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: 12px; margin-top: 1px; }
+  .steps-grid { display: grid; gap: 6px; margin-top: 16px; }
+  .step-row { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 11px 16px; display: flex; gap: 14px; align-items: center; }
+  .step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); width: 22px; flex-shrink: 0; }
+  .step-text { font-size: 13px; color: var(--muted); }
+
+  /* LANG TRANSITION */
+  .lang-fade { animation: langSwitch 0.25s ease both; }
+  @keyframes langSwitch { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  @media (max-width: 640px) {
+    .page { padding: 0 20px 60px; }
+    .gallery { grid-template-columns: 1fr; }
+    .modal-content { padding: 22px 20px; }
+    .header h1 { font-size: 36px; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-dots"></div>
+  <div class="cover-line"></div>
+</div>
+
+<div class="page">
+
+  <!-- LANG SWITCHER -->
+  <div class="lang-bar">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')">🇫🇷 FR</button>
+      <div class="lang-divider"></div>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header" id="header-block">
+    <div class="header-top">
+      <div>
+        <span class="header-icon">📞</span>
+        <h1>Script Hub</h1>
+        <p class="header-sub" id="header-sub">Centre de commande · Prospection &amp; Closing</p>
+      </div>
+      <div class="header-stats">
+        <div class="stat"><div class="stat-num">3</div><div class="stat-label" id="stat-label-scripts">Scripts actifs</div></div>
+        <div class="stat"><div class="stat-num">1</div><div class="stat-label" id="stat-label-official">Officiel</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE BANNER -->
+  <div class="active-banner" id="active-banner" onclick="openCard(0)">
+    <div class="banner-pulse"></div>
+    <div>
+      <div class="banner-label" id="banner-label">🎯 Script officiel à utiliser aujourd'hui</div>
+      <div class="banner-title" id="banner-title">Cold Call — Salons Canada (Google Positioning)</div>
+      <div class="banner-meta" id="banner-meta">Objectif · Book RDV 15 min</div>
+    </div>
+    <span class="banner-arrow">→</span>
+  </div>
+
+  <!-- GALLERY SECTION -->
+  <div class="section-header">
+    <span class="section-title" id="section-title">Gallery des scripts</span>
+    <div class="section-line"></div>
+    <span class="count-badge">3 scripts</span>
+  </div>
+
+  <div class="filters" id="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all', this)" id="f-all">Tout</button>
+    <button class="filter-btn" onclick="filterCards('cold', this)" id="f-cold">Cold</button>
+    <button class="filter-btn" onclick="filterCards('relance', this)" id="f-relance">Relance</button>
+    <button class="filter-btn" onclick="filterCards('closing', this)" id="f-closing">Closing</button>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal-inner"></div>
+</div>
+
+<script>
+// ─── LANGUAGE DATA ───────────────────────────────────────────────────────────
+
+const ui = {
+  fr: {
+    headerSub: 'Centre de commande · Prospection & Closing',
+    statScripts: 'Scripts actifs', statOfficial: 'Officiel',
+    bannerLabel: '🎯 Script officiel à utiliser aujourd\'hui',
+    bannerTitle: 'Cold Call — Salons Canada (Google Positioning)',
+    bannerMeta: 'Objectif · Book RDV 15 min',
+    sectionTitle: 'Gallery des scripts',
+    filters: { all: 'Tout', cold: 'Cold', relance: 'Relance', closing: 'Closing' },
+    scriptLabel: 'Script brut',
+    objLabel: 'Objections', objSuffix: 'réponses',
+    notesLabel: 'Règles & Notes importantes',
+    rdvLabel: 'Structure du rendez-vous',
+  },
+  en: {
+    headerSub: 'Command Center · Prospecting & Closing',
+    statScripts: 'Active scripts', statOfficial: 'Official',
+    bannerLabel: '🎯 Official script to use today',
+    bannerTitle: 'Cold Call — Canadian Salons (Google Positioning)',
+    bannerMeta: 'Goal · Book 15-min meeting',
+    sectionTitle: 'Script Gallery',
+    filters: { all: 'All', cold: 'Cold', relance: 'Follow-up', closing: 'Closing' },
+    scriptLabel: 'Raw script',
+    objLabel: 'Objections', objSuffix: 'answers',
+    notesLabel: 'Rules & Important Notes',
+    rdvLabel: 'Meeting structure',
+  }
+};
+
+// ─── SCRIPTS DATA ─────────────────────────────────────────────────────────────
+
+const scripts = {
+  fr: [
+    {
+      coverColor: 'linear-gradient(160deg,#080810 0%,#10101c 40%,#121008 100%)',
+      tags: ['<span class="tag tag-cold">Cold</span>','<span class="tag tag-officiel">✦ Officiel</span>'],
+      previewText: 'Bonjour, je parle bien au propriétaire du salon ?\n\nParfait. Je fais court.\nOn accompagne des salons partout au Canada pour stabiliser leur agenda en semaine...',
+      title: 'Cold Call — Salons Canada',
+      cardObjective: 'Book RDV 15 min',
+      type: 'cold',
+      objective: 'Objectif principal · <strong>Book un RDV de 15 minutes</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Google Positioning · B2B Local · Salons de coiffure Canada</span>',
+      blocks: [
+        { step: '01 · Ouverture', text: `Bonjour, je parle bien au propriétaire du salon ?\n\n<em>→ Si oui :</em>\n\nParfait. Je fais court.\nOn accompagne des salons partout au Canada pour stabiliser leur agenda en semaine grâce à un meilleur positionnement sur Google.\nJe voulais voir si c'est un sujet pertinent pour vous.\n\n<em>→ Silence.</em>` },
+        { step: '02 · Intérêt léger', text: `<em>S'il dit oui, peut-être, ça dépend :</em>\n\nD'accord.\nEst-ce que votre planning est rempli à 100 % du lundi au vendredi ?\n\n<em>→ Silence. Laisse parler.</em>` },
+        { step: '03 · Qualification', text: `<em>S'il reconnaît des périodes plus calmes :</em>\n\nAujourd'hui, les nouveaux clients cherchent directement sur Google quand ils veulent un coiffeur proche de chez eux.\nSi vous n'apparaissez pas assez haut ou si votre profil n'est pas optimisé, ces rendez-vous partent chez un concurrent.\n\nOn met en place un système simple pour augmenter les demandes entrantes.\nJe ne vends rien par téléphone.\n\nEst-ce que vous avez 15 minutes cette semaine pour voir si ça vaut le coup pour vous ?` }
+      ],
+      objections: [
+        { q: '"On a déjà Instagram"', a: `Instagram touche les abonnés.\nGoogle capte les personnes qui cherchent un coiffeur maintenant.` },
+        { q: '"On a déjà quelqu\'un"', a: `Très bien.\nEst-ce que votre agenda est rempli toute la semaine sans exception ?\n\n<em>→ Silence.</em>` },
+        { q: '"Ça ne m\'intéresse pas"', a: `Je comprends.\nAvant de vous laisser, si on vous apportait quelques rendez-vous supplémentaires par mois sans changer votre fonctionnement interne, vous refuseriez ?\n\n<em>→ Silence.</em>` }
+      ],
+      rules: ['Ton posé en tout temps — jamais de pression perceptible','Questions courtes, réponses longues de leur côté','Pas d\'explication technique au téléphone','Pas de débat — reformuler, pivoter, avancer','Objectif unique : obtenir le rendez-vous de 15 min'],
+      steps: ['Où ils perdent des clients','Combien de recherches locales chaque mois','Plan simple en 3 étapes','Investissement','Décision']
+    },
+    {
+      coverColor: 'linear-gradient(160deg,#08100a 0%,#0e160e 40%,#0a1008 100%)',
+      tags: ['<span class="tag tag-relance">Relance</span>','<span class="tag tag-test">Test</span>'],
+      previewText: 'Bonjour [Prénom], c\'est [Ton prénom].\n\nOn s\'était parlé la semaine passée au sujet de votre visibilité sur Google.\n\nJe voulais juste m\'assurer que vous aviez eu le temps d\'y réfléchir...',
+      title: 'Relance J+5 — Prospect chaud',
+      cardObjective: 'Confirmer le RDV ou requalifier',
+      type: 'relance',
+      objective: 'Objectif principal · <strong>Confirmer le RDV ou requalifier le prospect</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Relance téléphonique · 5 jours après le premier contact</span>',
+      blocks: [
+        { step: '01 · Réouverture', text: `Bonjour [Prénom], c'est [Ton prénom].\n\nOn s'était parlé la semaine passée au sujet de votre visibilité sur Google.\n\nJe voulais juste m'assurer que vous aviez eu le temps d'y réfléchir.\n\n<em>→ Silence. Laisse parler.</em>` },
+        { step: '02 · Si "oui j\'y ai pensé"', text: `Parfait. Est-ce qu'on peut se garder 15 minutes cette semaine ou la prochaine pour aller plus loin ?\n\nJ'ai quelques chiffres concrets sur votre zone qui pourraient vous intéresser.\n\n<em>→ Proposer directement deux créneaux.</em>\nMardi 14h ou jeudi 10h, qu'est-ce qui vous convient ?` },
+        { step: '03 · Si "trop occupé"', text: `Pas de souci, je comprends.\n\nEst-ce que vous avez 2 minutes maintenant ? Je veux juste vous partager un chiffre.\n\n<em>→ S'ils disent oui :</em>\n\nEn ce moment, il y a [X] personnes par mois qui cherchent un coiffeur dans votre quartier sur Google.\nSi votre profil n'est pas en première position, ces gens appellent un concurrent.\n\nC'est ça qu'on règle. Rien de plus.\n\nEst-ce qu'on prend 15 minutes pour vérifier où vous en êtes ?` }
+      ],
+      objections: [
+        { q: '"Je t\'avais dit que ça ne m\'intéressait pas"', a: `Je comprends, et je respecte ça.\nJe voulais juste vous partager un chiffre avant de fermer votre dossier.\n\nIl y a [X] recherches par mois dans votre zone. Après, c'est à vous de décider.` },
+        { q: '"Je suis trop occupé en ce moment"', a: `Justement — si votre agenda est plein, tant mieux.\nSi ce n'est pas le cas tous les jours, c'est exactement le problème qu'on règle.\n\nUne seule question : vos lundis et mardis sont-ils toujours complets ?` }
+      ],
+      rules: ['Ne jamais s\'excuser d\'appeler — assumer la relance','Référencer le premier appel dès les 5 premières secondes','Avoir le chiffre de recherches locales prêt avant d\'appeler','Proposer deux créneaux concrets — jamais "quand vous voulez"','Si refus définitif : fermer proprement, rester professionnel'],
+      steps: null
+    },
+    {
+      coverColor: 'linear-gradient(160deg,#100e00 0%,#181400 40%,#120e00 100%)',
+      tags: ['<span class="tag tag-closing">Closing</span>','<span class="tag tag-test">Test</span>'],
+      previewText: 'Pour résumer ce qu\'on a vu ensemble :\n\nVous perdez des rendez-vous chaque semaine parce que votre profil Google n\'est pas optimisé.\n\nIl y a [X] recherches par mois dans votre zone...',
+      title: 'Closing — RDV de découverte',
+      cardObjective: 'Décision oui/non sur le spot',
+      type: 'closing',
+      objective: 'Objectif principal · <strong>Obtenir une décision claire oui ou non dans le RDV</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">RDV visio ou en personne · 15 à 30 minutes</span>',
+      blocks: [
+        { step: '01 · Résumé de situation', text: `Alors, pour résumer ce qu'on a vu ensemble :\n\nVous perdez des rendez-vous chaque semaine parce que votre profil Google n'est pas optimisé.\n\nIl y a [X] recherches par mois dans votre zone. En ce moment, une partie de ces personnes appelle un concurrent.\n\n<em>→ Silence. Laisser confirmer.</em>\n\nC'est bien ça ?` },
+        { step: '02 · Le plan en 3 étapes', text: `Ce qu'on fait ensemble, c'est simple.\n\nÉtape 1 — On audite votre profil Google Business et on identifie ce qui vous coûte des clients.\nÉtape 2 — On optimise tout : photos, catégories, zones de service, mots-clés locaux.\nÉtape 3 — On met en place un système pour générer des avis régulièrement.\n\nEn 30 à 60 jours, vous commencez à voir des demandes supplémentaires entrer.\n\n<em>→ Pause.</em>` },
+        { step: '03 · L\'investissement', text: `Pour ça, l'investissement est de [X]$/mois.\n\nCe que ça représente concrètement : si on vous amène 2 ou 3 nouveaux clients par semaine, c'est payé en quelques jours.\n\n<em>→ Silence. Ne pas remplir le vide.</em>` },
+        { step: '04 · La décision', text: `Est-ce que ça a du sens pour vous ?\n\n<em>→ Si hésitation :</em>\n\nQu'est-ce qui vous retient ?\n\n<em>→ Écouter. Traiter l'objection. Retourner à la décision.</em>\n\nOn commence cette semaine ou la prochaine ?` }
+      ],
+      objections: [
+        { q: '"C\'est trop cher"', a: `Je comprends.\nSi on vous amène 3 clients de plus par semaine à [X]$ chacun, est-ce que l'investissement se justifie ?\n\n<em>→ Silence.</em>` },
+        { q: '"J\'ai besoin d\'y réfléchir"', a: `Bien sûr. À quoi pensez-vous exactement ?\n\n<em>→ Écouter. Identifier le vrai frein.</em>\n\nEst-ce que c'est une question de budget, de timing, ou vous n'êtes pas convaincu que ça marchera ?` },
+        { q: '"Je veux en parler à mon associé"', a: `Absolument. Qu'est-ce qu'il aurait besoin de savoir pour prendre la décision ?\n\n<em>→ Leur donner les arguments. Proposer une deuxième rencontre si nécessaire.</em>` }
+      ],
+      rules: ['Toujours résumer la situation avant de parler du prix','Présenter le prix avec confiance — pas d\'excuse, pas d\'hésitation','Après avoir annoncé le prix : silence absolu','Ne jamais baisser le prix sans obtenir quelque chose en échange','Objectif : décision sur le spot — repousser = perdre'],
+      steps: null
+    }
+  ],
+
+  en: [
+    {
+      coverColor: 'linear-gradient(160deg,#080810 0%,#10101c 40%,#121008 100%)',
+      tags: ['<span class="tag tag-cold">Cold</span>','<span class="tag tag-officiel">✦ Official</span>'],
+      previewText: 'Hi, am I speaking with the salon owner?\n\nPerfect. I\'ll keep it short.\nWe help salons across Canada fill their weekday schedule with better Google positioning...',
+      title: 'Cold Call — Canadian Salons',
+      cardObjective: 'Book a 15-min meeting',
+      type: 'cold',
+      objective: 'Main goal · <strong>Book a 15-minute discovery call</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Google Positioning · Local B2B · Hair salons across Canada</span>',
+      blocks: [
+        { step: '01 · Opening', text: `Hi, am I speaking with the salon owner?\n\n<em>→ If yes:</em>\n\nPerfect. I'll keep it short.\nWe help salons across Canada stabilize their weekday schedule through better Google positioning.\nI wanted to see if that's relevant to you.\n\n<em>→ Silence.</em>` },
+        { step: '02 · Mild interest', text: `<em>If they say yes, maybe, depends:</em>\n\nGot it.\nIs your schedule 100% full Monday through Friday?\n\n<em>→ Silence. Let them talk.</em>` },
+        { step: '03 · Qualification', text: `<em>If they admit slower periods:</em>\n\nToday, new clients go straight to Google when they want a nearby hairdresser.\nIf you're not ranking high enough, or your profile isn't optimized, those bookings go to a competitor.\n\nWe put a simple system in place to increase inbound requests.\nI'm not selling anything over the phone.\n\nDo you have 15 minutes this week to see if it makes sense for you?` }
+      ],
+      objections: [
+        { q: '"We already have Instagram"', a: `Instagram reaches your followers.\nGoogle captures people searching for a hairdresser right now.` },
+        { q: '"We already have someone for that"', a: `That's great.\nIs your schedule fully booked every single week without exception?\n\n<em>→ Silence.</em>` },
+        { q: '"I\'m not interested"', a: `I understand.\nBefore I let you go — if we could bring you a few extra appointments per month without changing anything internally, would you still say no?\n\n<em>→ Silence.</em>` }
+      ],
+      rules: ['Calm tone at all times — never apply pressure','Short questions, let them give long answers','No technical explanations on the call','No debates — reframe, pivot, move forward','Single goal: get the 15-minute meeting'],
+      steps: ['Where they\'re losing clients','How many local searches per month','Simple 3-step plan','Investment','Decision']
+    },
+    {
+      coverColor: 'linear-gradient(160deg,#08100a 0%,#0e160e 40%,#0a1008 100%)',
+      tags: ['<span class="tag tag-relance">Follow-up</span>','<span class="tag tag-test">Test</span>'],
+      previewText: 'Hi [First name], this is [Your name].\n\nWe spoke last week about your Google visibility.\n\nI just wanted to make sure you\'d had a chance to think it over...',
+      title: 'Follow-up D+5 — Warm Prospect',
+      cardObjective: 'Confirm meeting or re-qualify',
+      type: 'relance',
+      objective: 'Main goal · <strong>Confirm the meeting or re-qualify the prospect</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Phone follow-up · 5 days after first contact</span>',
+      blocks: [
+        { step: '01 · Re-opening', text: `Hi [First name], this is [Your name].\n\nWe spoke last week about your Google visibility.\n\nI just wanted to make sure you'd had a chance to think it over.\n\n<em>→ Silence. Let them talk.</em>` },
+        { step: '02 · If "yes I thought about it"', text: `Perfect. Can we block 15 minutes this week or next to go further?\n\nI have some concrete numbers on your area that might interest you.\n\n<em>→ Offer two specific time slots directly.</em>\nTuesday at 2pm or Thursday at 10am — what works for you?` },
+        { step: '03 · If "not yet / too busy"', text: `No problem, I understand.\n\nDo you have 2 minutes right now? I just want to share one number with you.\n\n<em>→ If they say yes:</em>\n\nRight now, [X] people per month are searching for a hairdresser in your neighbourhood on Google.\nIf your profile isn't in the top position, those people are calling a competitor.\n\nThat's what we fix. Nothing more.\n\nShould we take 15 minutes to check where you stand?` }
+      ],
+      objections: [
+        { q: '"I told you I wasn\'t interested"', a: `I understand and I respect that.\nI just wanted to share one number before closing your file.\n\nThere are [X] searches per month in your area. After that, it's your call.` },
+        { q: '"I\'m too busy right now"', a: `Exactly — if your schedule is full, great.\nIf it's not full every single day, that's precisely the problem we fix.\n\nOne question: are your Mondays and Tuesdays always at full capacity?` }
+      ],
+      rules: ['Never apologize for calling — own the follow-up','Reference the first call within the first 5 seconds','Have the local search volume ready before you call','Offer two concrete time slots — never "whenever you want"','If final refusal: close cleanly, stay professional'],
+      steps: null
+    },
+    {
+      coverColor: 'linear-gradient(160deg,#100e00 0%,#181400 40%,#120e00 100%)',
+      tags: ['<span class="tag tag-closing">Closing</span>','<span class="tag tag-test">Test</span>'],
+      previewText: 'So to summarize what we looked at together:\n\nYou\'re losing appointments every week because your Google profile isn\'t optimized.\n\nThere are [X] searches per month in your area...',
+      title: 'Closing — Discovery Meeting',
+      cardObjective: 'Yes or no decision on the spot',
+      type: 'closing',
+      objective: 'Main goal · <strong>Get a clear yes or no decision in the meeting</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Video or in-person · 15 to 30 minutes</span>',
+      blocks: [
+        { step: '01 · Situation summary', text: `So to summarize what we looked at together:\n\nYou're losing appointments every week because your Google profile isn't optimized.\n\nThere are [X] searches per month in your area. Right now, some of those people are calling a competitor.\n\n<em>→ Silence. Let them confirm.</em>\n\nThat's right, isn't it?` },
+        { step: '02 · The 3-step plan', text: `What we do together is simple.\n\nStep 1 — We audit your Google Business profile and identify what's costing you clients.\nStep 2 — We optimize everything: photos, categories, service areas, local keywords.\nStep 3 — We set up a system to consistently generate reviews.\n\nWithin 30 to 60 days, you start seeing additional requests come in.\n\n<em>→ Pause.</em>` },
+        { step: '03 · The investment', text: `For this, the investment is [X]$/month.\n\nWhat that means in practice: if we bring you 2 or 3 new clients a week, it pays for itself within days.\n\n<em>→ Silence. Don't fill the void.</em>` },
+        { step: '04 · The decision', text: `Does this make sense for you?\n\n<em>→ If hesitation:</em>\n\nWhat's holding you back?\n\n<em>→ Listen. Handle the objection. Return to the decision.</em>\n\nShall we start this week or next?` }
+      ],
+      objections: [
+        { q: '"It\'s too expensive"', a: `I understand.\nIf we bring you 3 extra clients per week at [X]$ each, does the investment justify itself?\n\n<em>→ Silence.</em>` },
+        { q: '"I need to think about it"', a: `Of course. What specifically are you thinking about?\n\n<em>→ Listen. Identify the real blocker.</em>\n\nIs it a budget question, a timing issue, or you're not convinced it'll work for you?` },
+        { q: '"I need to talk to my partner"', a: `Absolutely. What would they need to know to make the decision?\n\n<em>→ Give them the arguments. Offer a second meeting if needed.</em>` }
+      ],
+      rules: ['Always summarize the situation before talking price','Present the price with confidence — no apologies, no hesitation','After announcing the price: absolute silence','Never drop the price without getting something in return','Goal: decision on the spot — pushing it off means losing it'],
+      steps: null
+    }
+  ]
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentLang = 'fr';
+let currentCardIndex = 0;
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderAll() {
+  const t = ui[currentLang];
+  const data = scripts[currentLang];
+
+  // UI text
+  document.getElementById('header-sub').textContent = t.headerSub;
+  document.getElementById('stat-label-scripts').textContent = t.statScripts;
+  document.getElementById('stat-label-official').textContent = t.statOfficial;
+  document.getElementById('banner-label').textContent = t.bannerLabel;
+  document.getElementById('banner-title').textContent = t.bannerTitle;
+  document.getElementById('banner-meta').textContent = t.bannerMeta;
+  document.getElementById('section-title').textContent = t.sectionTitle;
+  document.getElementById('f-all').textContent = t.filters.all;
+  document.getElementById('f-cold').textContent = t.filters.cold;
+  document.getElementById('f-relance').textContent = t.filters.relance;
+  document.getElementById('f-closing').textContent = t.filters.closing;
+
+  // Cards
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = data.map((s, i) => `
+    <div class="card" data-type="${s.type}" onclick="openCard(${i})">
+      <div class="card-preview"><div class="card-preview-text">${s.previewText}</div></div>
+      <div class="card-body">
+        <div class="card-tags">${s.tags.join('')}</div>
+        <div class="card-name">${s.title}</div>
+        <div class="card-objective">${currentLang === 'fr' ? 'Objectif' : 'Goal'} · <span>${s.cardObjective}</span></div>
+      </div>
+    </div>
+  `).join('');
+
+  gallery.classList.add('lang-fade');
+  setTimeout(() => gallery.classList.remove('lang-fade'), 300);
+
+  // Reset filter
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('f-all').classList.add('active');
+}
+
+function setLang(lang) {
+  if (lang === currentLang) return;
+  currentLang = lang;
+  document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  renderAll();
+}
+
+function openCard(index) {
+  currentCardIndex = index;
+  const s = scripts[currentLang][index];
+  const t = ui[currentLang];
+  const modal = document.getElementById('modal-inner');
+
+  const objHtml = s.objections.map(o => `
+    <div class="objection-item">
+      <div class="objection-q">${o.q}</div>
+      <div class="objection-a">${o.a}</div>
+    </div>`).join('');
+
+  const rulesHtml = s.rules.map(r => `<li>${r}</li>`).join('');
+  const stepsHtml = s.steps ? `
+    <div style="margin-top:20px;">
+      <div class="script-label" style="margin-bottom:10px;">${t.rdvLabel}</div>
+      <div class="steps-grid">${s.steps.map((st,i)=>`<div class="step-row"><span class="step-num">0${i+1}</span><span class="step-text">${st}</span></div>`).join('')}</div>
+    </div>` : '';
+
+  const blocksHtml = s.blocks.map(b => `
+    <div class="script-block">
+      <div class="script-step">${b.step}</div>
+      <div class="script-text">${b.text}</div>
+    </div>`).join('');
+
+  modal.innerHTML = `
+    <div class="modal-cover">
+      <div class="modal-cover-bg" style="background:${s.coverColor};"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-content">
+      <div class="modal-tags">${s.tags.join('')}</div>
+      <div class="modal-title">${s.title}</div>
+      <div class="modal-objective">${s.objective}</div>
+      <div class="script-section">
+        <div class="script-label">${t.scriptLabel}</div>
+        ${blocksHtml}
+      </div>
+      <div class="toggle" id="t-obj">
+        <div class="toggle-header" onclick="toggleSection('t-obj')">
+          <span class="toggle-arrow">▶</span>
+          <span>${t.objLabel}</span>
+          <span style="margin-left:auto;font-size:10px;font-family:'DM Mono',monospace;opacity:0.45;">${s.objections.length} ${t.objSuffix}</span>
+        </div>
+        <div class="toggle-body">${objHtml}</div>
+      </div>
+      <div class="toggle" id="t-notes" style="margin-top:8px;">
+        <div class="toggle-header" onclick="toggleSection('t-notes')">
+          <span class="toggle-arrow">▶</span>
+          <span>${t.notesLabel}</span>
+        </div>
+        <div class="toggle-body"><ul class="rules-list">${rulesHtml}</ul>${stepsHtml}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow = ''; }
+function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+function toggleSection(id) { document.getElementById(id).classList.toggle('open'); }
+function filterCards(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Init
+renderAll();
+</script>
+</body>
+</html>
