@@ -140,6 +140,28 @@
   .step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); width: 22px; flex-shrink: 0; }
   .step-text { font-size: 13px; color: var(--muted); }
 
+  /* OBJECTION BANK */
+  .ob-grid { display: flex; flex-direction: column; gap: 8px; }
+  .ob-card { border-radius: 10px; overflow: hidden; background: var(--bg); border: 1px solid var(--border); transition: border-color 0.2s ease; }
+  .ob-card:hover { border-color: #3a3a45; }
+  .ob-header { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; user-select: none; }
+  .ob-prob { font-size: 9px; font-family: 'DM Mono', monospace; font-weight: 500; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+  .ob-prob.high { background: rgba(212,100,100,0.15); color: #d47a7a; }
+  .ob-prob.mid  { background: rgba(196,180,122,0.15); color: #c4b47a; }
+  .ob-prob.low  { background: rgba(122,196,122,0.12); color: #7ac47a; }
+  .ob-q { font-size: 13px; color: var(--text); font-weight: 400; flex: 1; }
+  .ob-chevron { font-size: 9px; color: var(--muted); transition: transform 0.2s ease; margin-left: auto; flex-shrink: 0; }
+  .ob-card.open .ob-chevron { transform: rotate(90deg); }
+  .ob-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); }
+  .ob-card.open .ob-body { display: block; padding-top: 12px; }
+  .ob-meaning { font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 10px; padding-left: 2px; }
+  .ob-response { background: var(--surface2); border-left: 2px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+  .ob-section-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+  .ob-section-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .ob-section-label.high::before { background: #d47a7a; }
+  .ob-section-label.mid::before  { background: #c4b47a; }
+  .ob-section-label.low::before  { background: #7ac47a; }
+
   /* LANG TRANSITION */
   .lang-fade { animation: langSwitch 0.25s ease both; }
   @keyframes langSwitch { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -184,7 +206,7 @@
         <p class="header-sub" id="header-sub">Centre de commande · Prospection &amp; Closing</p>
       </div>
       <div class="header-stats">
-        <div class="stat"><div class="stat-num">3</div><div class="stat-label" id="stat-label-scripts">Scripts actifs</div></div>
+        <div class="stat"><div class="stat-num">4</div><div class="stat-label" id="stat-label-scripts">Scripts actifs</div></div>
         <div class="stat"><div class="stat-num">1</div><div class="stat-label" id="stat-label-official">Officiel</div></div>
       </div>
     </div>
@@ -205,7 +227,7 @@
   <div class="section-header">
     <span class="section-title" id="section-title">Gallery des scripts</span>
     <div class="section-line"></div>
-    <span class="count-badge">3 scripts</span>
+    <span class="count-badge">4 scripts</span>
   </div>
 
   <div class="filters" id="filter-bar">
@@ -213,6 +235,7 @@
     <button class="filter-btn" onclick="filterCards('cold', this)" id="f-cold">Cold</button>
     <button class="filter-btn" onclick="filterCards('relance', this)" id="f-relance">Relance</button>
     <button class="filter-btn" onclick="filterCards('closing', this)" id="f-closing">Closing</button>
+    <button class="filter-btn" onclick="filterCards('objection', this)" id="f-objection">Objections</button>
   </div>
 
   <div class="gallery" id="gallery"></div>
@@ -234,7 +257,7 @@ const ui = {
     bannerTitle: 'Cold Call — Salons Canada (Google Positioning)',
     bannerMeta: 'Objectif · Book RDV 15 min',
     sectionTitle: 'Gallery des scripts',
-    filters: { all: 'Tout', cold: 'Cold', relance: 'Relance', closing: 'Closing' },
+    filters: { all: 'Tout', cold: 'Cold', relance: 'Relance', closing: 'Closing', objection: 'Objections' },
     scriptLabel: 'Script brut',
     objLabel: 'Objections', objSuffix: 'réponses',
     notesLabel: 'Règles & Notes importantes',
@@ -247,7 +270,7 @@ const ui = {
     bannerTitle: 'Cold Call — Canadian Salons (Google Positioning)',
     bannerMeta: 'Goal · Book 15-min meeting',
     sectionTitle: 'Script Gallery',
-    filters: { all: 'All', cold: 'Cold', relance: 'Follow-up', closing: 'Closing' },
+    filters: { all: 'All', cold: 'Cold', relance: 'Follow-up', closing: 'Closing', objection: 'Objections' },
     scriptLabel: 'Raw script',
     objLabel: 'Objections', objSuffix: 'answers',
     notesLabel: 'Rules & Important Notes',
@@ -321,6 +344,42 @@ const scripts = {
       ],
       rules: ['Toujours résumer la situation avant de parler du prix','Présenter le prix avec confiance — pas d\'excuse, pas d\'hésitation','Après avoir annoncé le prix : silence absolu','Ne jamais baisser le prix sans obtenir quelque chose en échange','Objectif : décision sur le spot — repousser = perdre'],
       steps: null
+    },
+    // ─── OBJECTION BANK FR ───
+    {
+      coverColor: 'linear-gradient(160deg,#1a0a0a 0%,#1e0e10 40%,#180a10 100%)',
+      tags: ['<span class="tag tag-obj" style="background:#2a1a1a;color:#d47a7a;">⚡ Objections</span>'],
+      previewText: '01 · Je n\'ai pas le temps\n02 · Rappelez-moi plus tard\n03 · Envoyez par email\n04 · On est déjà complet\n05 · Bouche-à-oreille...',
+      title: 'Banque d\'Objections',
+      cardObjective: '8 réponses · classées par probabilité',
+      type: 'objection',
+      isObjBank: true,
+      objective: 'Référence complète · <strong>8 objections uniques classées par probabilité</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Les doublons ont été retirés · Utilisable Cold / Relance / Closing</span>',
+      sections: [
+        {
+          level: 'high', label: 'Probabilité haute',
+          items: [
+            { q: '"Je n\'ai pas le temps"', meaning: 'Il veut raccrocher vite.', a: 'Je comprends. Je prends 20 secondes.\nEst-ce que votre planning est rempli à 100 % toute la semaine ?\n\n→ S\'il dit non, tu as une ouverture.' },
+            { q: '"Rappelez-moi plus tard"', meaning: 'Pas prioritaire — risque de perdre le lead.', a: 'Pas de souci. Je vous rappelle quand exactement ?\nDemain ou jeudi ?\n\n→ Fixe une date précise, sinon tu perds le lead.' },
+            { q: '"Envoyez-moi les informations par email"', meaning: 'Il veut t\'évacuer sans dire non.', a: 'Je peux vous envoyer un résumé.\nMais si on ne prend pas 15 minutes ensemble, vous ne saurez pas si ça s\'applique à votre salon.\n\nMardi 14h ou mercredi 10h ?\n\n→ Toujours donner deux choix concrets.' },
+          ]
+        },
+        {
+          level: 'mid', label: 'Probabilité moyenne',
+          items: [
+            { q: '"On est déjà complet"', meaning: 'Il pense ne pas avoir besoin de clients.', a: 'Top. Même le mardi et mercredi c\'est rempli à 100 % ?\n\n→ Beaucoup de salons ont des trous en semaine. Tu cherches la faille.' },
+            { q: '"On fonctionne surtout par bouche-à-oreille"', meaning: 'Il ne mesure pas l\'impact du digital.', a: 'C\'est excellent.\nAujourd\'hui, 80 % des nouveaux clients vérifient Google avant de choisir un salon.\nEst-ce que vous savez combien d\'avis vous avez comparé à vos concurrents ?\n\n→ Tu mets la pression concurrentielle.' },
+            { q: '"On a déjà un site web"', meaning: 'Il confond site web avec acquisition client.', a: 'Parfait. Il vous génère combien de nouvelles prises de rendez-vous par mois ?\n\n→ S\'il ne sait pas répondre, tu as un problème à exploiter.' },
+            { q: '"C\'est trop cher"', meaning: 'Il n\'a pas perçu la valeur concrète.', a: 'Je comprends.\nSi on vous apporte 10 nouveaux clients par mois, et qu\'un client vaut en moyenne 80 $, ça fait 800 $ mensuels.\nLa question, ce n\'est pas le prix. C\'est le retour.\n\n→ Ramène toujours à la rentabilité.' },
+          ]
+        },
+        {
+          level: 'low', label: 'Probabilité basse',
+          items: [
+            { q: '"On ne cherche pas plus de clients"', meaning: 'Il pense que plus de clients = plus de chaos.', a: 'L\'objectif n\'est pas d\'ajouter du chaos.\nC\'est de remplir les trous et stabiliser les périodes calmes.\n\n→ Tu repositionnes sur la stabilité, pas la croissance.' },
+          ]
+        }
+      ]
     }
   ],
 
@@ -387,6 +446,42 @@ const scripts = {
       ],
       rules: ['Always summarize the situation before talking price','Present the price with confidence — no apologies, no hesitation','After announcing the price: absolute silence','Never drop the price without getting something in return','Goal: decision on the spot — pushing it off means losing it'],
       steps: null
+    },
+    // ─── OBJECTION BANK EN ───
+    {
+      coverColor: 'linear-gradient(160deg,#1a0a0a 0%,#1e0e10 40%,#180a10 100%)',
+      tags: ['<span class="tag tag-obj" style="background:#2a1a1a;color:#d47a7a;">⚡ Objections</span>'],
+      previewText: '01 · I don\'t have time\n02 · Call me back later\n03 · Send me an email\n04 · We\'re already fully booked\n05 · Word of mouth...',
+      title: 'Objection Bank',
+      cardObjective: '8 answers · sorted by probability',
+      type: 'objection',
+      isObjBank: true,
+      objective: 'Full reference · <strong>8 unique objections sorted by probability</strong><br><span style="font-size:11px;font-family:\'DM Mono\',monospace;color:#4a4a5a;">Duplicates removed · Usable Cold / Follow-up / Closing</span>',
+      sections: [
+        {
+          level: 'high', label: 'High probability',
+          items: [
+            { q: '"I don\'t have time"', meaning: 'They want to hang up fast.', a: 'I understand. I\'ll take 20 seconds.\nIs your schedule 100% full every single week?\n\n→ If they say no, you have an opening.' },
+            { q: '"Call me back later"', meaning: 'Not a priority — risk of losing the lead.', a: 'No problem. When exactly should I call back?\nTomorrow or Thursday?\n\n→ Lock in a specific date, otherwise you lose the lead.' },
+            { q: '"Send me the information by email"', meaning: 'They want to dismiss you without saying no.', a: 'I can send you a summary.\nBut if we don\'t take 15 minutes together, you won\'t know if it applies to your salon.\n\nTuesday at 2pm or Wednesday at 10am?\n\n→ Always give two concrete choices.' },
+          ]
+        },
+        {
+          level: 'mid', label: 'Medium probability',
+          items: [
+            { q: '"We\'re already fully booked"', meaning: 'They think they don\'t need more clients.', a: 'Great. Even Tuesdays and Wednesdays are 100% full?\n\n→ Most salons have gaps mid-week. You\'re looking for the crack.' },
+            { q: '"We mostly work through word of mouth"', meaning: 'They don\'t measure the digital impact.', a: 'That\'s excellent.\nToday, 80% of new clients check Google before choosing a salon.\nDo you know how many reviews you have compared to your competitors?\n\n→ You\'re applying competitive pressure.' },
+            { q: '"We already have a website"', meaning: 'They\'re confusing a website with client acquisition.', a: 'Perfect. How many new booking requests does it bring you per month?\n\n→ If they can\'t answer, you\'ve found a problem to exploit.' },
+            { q: '"It\'s too expensive"', meaning: 'They haven\'t perceived the concrete value.', a: 'I understand.\nIf we bring you 10 new clients a month, and a client is worth $80 on average, that\'s $800 monthly.\nThe question isn\'t the price. It\'s the return.\n\n→ Always bring it back to profitability.' },
+          ]
+        },
+        {
+          level: 'low', label: 'Low probability',
+          items: [
+            { q: '"We\'re not looking for more clients"', meaning: 'They think more clients = more chaos.', a: 'The goal isn\'t to add chaos.\nIt\'s to fill the slow periods and stabilize the quiet days.\n\n→ Reframe around stability, not growth.' },
+          ]
+        }
+      ]
     }
   ]
 };
@@ -412,6 +507,7 @@ function renderAll() {
   document.getElementById('f-cold').textContent = t.filters.cold;
   document.getElementById('f-relance').textContent = t.filters.relance;
   document.getElementById('f-closing').textContent = t.filters.closing;
+  document.getElementById('f-objection').textContent = t.filters.objection;
 
   // Cards
   const gallery = document.getElementById('gallery');
@@ -448,6 +544,45 @@ function openCard(index) {
   const t = ui[currentLang];
   const modal = document.getElementById('modal-inner');
 
+  // ─── OBJECTION BANK special render ───
+  if (s.isObjBank) {
+    const sectionsHtml = s.sections.map(sec => `
+      <div class="ob-section-label ${sec.level}">${sec.label}</div>
+      ${sec.items.map((item, i) => {
+        const uid = 'ob-' + sec.level + '-' + i;
+        return `
+        <div class="ob-card" id="${uid}">
+          <div class="ob-header" onclick="toggleOb('${uid}')">
+            <span class="ob-prob ${sec.level}">${sec.level === 'high' ? (currentLang==='fr'?'HAUTE':'HIGH') : sec.level === 'mid' ? (currentLang==='fr'?'MOYENNE':'MED') : (currentLang==='fr'?'BASSE':'LOW')}</span>
+            <span class="ob-q">${item.q}</span>
+            <span class="ob-chevron">▶</span>
+          </div>
+          <div class="ob-body">
+            <div class="ob-meaning">${currentLang==='fr'?'Ce que ça veut dire':'What it means'} — ${item.meaning}</div>
+            <div class="ob-response">${item.a}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    `).join('');
+
+    modal.innerHTML = `
+      <div class="modal-cover">
+        <div class="modal-cover-bg" style="background:${s.coverColor};"></div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-content">
+        <div class="modal-tags">${s.tags.join('')}</div>
+        <div class="modal-title">${s.title}</div>
+        <div class="modal-objective">${s.objective}</div>
+        <div class="ob-grid">${sectionsHtml}</div>
+      </div>`;
+
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    return;
+  }
+
+  // ─── Regular script render ───
   const objHtml = s.objections.map(o => `
     <div class="objection-item">
       <div class="objection-q">${o.q}</div>
@@ -512,6 +647,7 @@ function filterCards(type, btn) {
   });
 }
 
+function toggleOb(id) { document.getElementById(id).classList.toggle('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // Init
